@@ -1,0 +1,43 @@
+;; -*- mode: emacs-lisp; lexical-binding:t; coding: utf-8-emacs; -*-
+;; --------------------------------------------------------------------------
+;; Desktop File for Emacs
+;; --------------------------------------------------------------------------
+;; Created Tue Feb  3 14:58:46 2026
+;; Desktop file format version 208
+;; Emacs version 30.2
+
+;; Global section:
+(setq desktop-saved-frameset nil)
+(setq desktop-missing-file-warning nil)
+(setq tags-file-name nil)
+(setq tags-table-list nil)
+(setq search-ring nil)
+(setq regexp-search-ring nil)
+(setq register-alist nil)
+(setq file-name-history '("c:/handmade/code/handmade.cpp" "c:/handmade/code/test.cpp" "c:/handmade/code/handmade.cpp"))
+
+;; Buffer section -- buffers listed in same order as in buffer list:
+(desktop-create-buffer 208
+  "c:/handmade/code/handmade.cpp"
+  "handmade.cpp"
+  'c++-mode
+  '(font-lock-mode evil-local-mode)
+  758
+  '(nil nil)
+  nil
+  nil
+  '((buffer-display-time 27010 24961 714542 0) (buffer-file-coding-system . undecided-dos) (overwrite-mode))
+  '((mark-ring nil)))
+
+(desktop-create-buffer 208
+  "c:/handmade/code/test.cpp"
+  "test.cpp"
+  'c++-mode
+  '(font-lock-mode evil-local-mode)
+  753
+  '(nil nil)
+  nil
+  nil
+  '((buffer-display-time 27010 24938 395931 0) (buffer-file-coding-system . undecided-dos) (overwrite-mode))
+  '((mark-ring nil)))
+

@@ -74,8 +74,6 @@
 ;; We'll define a smart compile function below
 (global-set-key (kbd "M-m") #'emilio-build)
 
-;; M-w = next buffer
-(global-set-key (kbd "M-w") #'next-buffer)
 
 
 ;; ---------- Compilation (Casey-like) ----------
@@ -111,26 +109,75 @@
       (compile cmd))))
 
 
-;; ---------- Startup layout: left = last file, right = *compilation* ----------
+;; ---------- Desktop + recentf (FORCED to use your config folder) ----------
 (require 'desktop)
+(require 'seq)
+(require 'recentf)
 
-(setq desktop-path (list user-emacs-directory))
-(setq desktop-dirname user-emacs-directory)
+(setq inhibit-startup-screen t)
+(setq initial-scratch-message nil)
+
+;; IMPORTANT: force the session + recentf files to live next to THIS .emacs
+(defconst emilio-config-dir "C:/handmade/misc/")
+
+(setq user-emacs-directory emilio-config-dir)
+
+;; Desktop session file location
+(setq desktop-dirname emilio-config-dir)
+(setq desktop-path (list emilio-config-dir))
 (setq desktop-base-file-name "emilio.desktop")
+
+;; Make it restore quickly
+(setq desktop-restore-eager 50)
+(setq desktop-restore-frames nil)
 
 (desktop-save-mode 1)
 
-(defun emilio-startup-layout ()
-  "Two windows: left editing, right compilation buffer."
+;; recentf file location
+(setq recentf-save-file (concat emilio-config-dir "recentf"))
+(recentf-mode 1)
+(setq recentf-max-saved-items 200)
+
+(defun emilio-first-file-buffer ()
+  "Return the most recent buffer visiting a file, or nil."
+  (seq-find (lambda (b) (buffer-file-name b))
+            (buffer-list)))
+
+(defun emilio-open-last-recent-file ()
+  "Open the most recent file from recentf, if any."
+  (when (and (boundp 'recentf-list) recentf-list)
+    (let ((f (car recentf-list)))
+      (when (and f (file-exists-p f))
+        (find-file f)))))
+
+(defun emilio-apply-layout ()
+  "Two windows: left = last file, right = *compilation*."
   (delete-other-windows)
   (split-window-right)
   (let ((left (selected-window))
         (right (next-window)))
-    ;; Right window shows compilation log by default
+
+    ;; Right side: compilation buffer always exists
     (set-window-buffer right (get-buffer-create "*compilation*"))
-    ;; Keep focus on left
+
+    ;; Left side: prefer restored file buffers, otherwise open recent file
+    (select-window left)
+    (unless (emilio-first-file-buffer)
+      (emilio-open-last-recent-file))
+
+    ;; If we now have a file buffer, show it
+    (let ((b (emilio-first-file-buffer)))
+      (when b
+        (set-window-buffer left b)))
+
     (select-window left)))
 
-(add-hook 'emacs-startup-hook #'emilio-startup-layout)
+(defun emilio-setup-after-startup ()
+  "Apply layout after init + desktop restore."
+  (run-with-timer 0.3 nil #'emilio-apply-layout))
+
+(add-hook 'window-setup-hook #'emilio-setup-after-startup)
 
 
+;; M-w = switch focus to the other window (like clicking it)
+(global-set-key (kbd "M-w") #'other-window)
