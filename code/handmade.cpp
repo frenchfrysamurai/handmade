@@ -50,7 +50,7 @@ int CALLBACK WinMain(
     LPSTR CommandLine, 
     int Cmdshow)
 {
-// Stopped at 21:27, Day 2
+// Stopped at 35:20, Day 2
     WNDCLASS WindowClass = {};
 
     WindowClass.style = CS_OWNDC|CS_HREDRAW|CS_VREDRAW;
