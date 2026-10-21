@@ -8,7 +8,6 @@ MainWindowCallback(HWND Window,
 {
     LRESULT Result = 0;
 
-#if 0
     switch(Message)
     {
         case WM_SIZE:
@@ -31,14 +30,22 @@ MainWindowCallback(HWND Window,
             OutputDebugStringA("WM_ACTIVATEAPP\n");
         }break;
 
+	// Day 2 56:10 .... Very useful info on how to solve linking errors. Stopping here
+	case WM_PAINT:
+	{
+	  PAINTSTRUCT Paint;
+	  HDC_DeviceContext = BeginPaint(Window, &Paint);
+	  int x = 
+
+	}
+	
+
         default:
         {
             //        OutputDebugStringA("default\n");
-            Result = ;
+	  Result = DefWindowProc(Window, Message, WParam, LParam);
         }break;
     }
-#endif
-
     return(Result);
 }
 
@@ -58,6 +65,43 @@ int CALLBACK WinMain(
     WindowClass.hInstance = Instance;
     //WindowClass.hIcon;
     WindowClass.lpszClassName = "HandmadeHeroWindowClass";
+
+    if(RegisterClass(&WindowClass))
+    {
+      HWND Window = CreateWindowExA(0,
+                                      WindowClass.lpszClassName,
+                                      "Handmade Hero",
+                                      WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+                                      CW_USEDEFAULT,
+                                      CW_USEDEFAULT,
+                                      CW_USEDEFAULT,
+                                      CW_USEDEFAULT,
+                                      0,
+                                      0,
+                                      Instance,
+                                      0);
+      if(Window)
+       {
+	   for(;;)
+	     {
+	       MSG Message;
+	       BOOL MessageResult = GetMessage(&Message, 0, 0, 0);
+	       if(MessageResult > 0)
+		 {
+		   TranslateMessage(&Message);
+		   DispatchMessageA(&Message);
+		 }
+	       else
+		 {
+		   break;
+		 }
+	     }
+       }
+    }
+    else
+    {
+    }
+    ;
 
 
   return(0);
