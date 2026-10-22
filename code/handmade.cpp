@@ -1,5 +1,11 @@
 #include <windows.h>
 
+#define internal static
+#define local_persist static
+#define global_variable static
+
+global_variable bool Running;
+
 LRESULT CALLBACK
 MainWindowCallback(HWND Window,
                    UINT Message,
@@ -17,12 +23,12 @@ MainWindowCallback(HWND Window,
 
         case WM_DESTROY:
         {
-            OutputDebugStringA("WM_DESTROY\n");
+	  Running = false;
         }break;
 
         case WM_CLOSE:
         {
-            OutputDebugStringA("WM_CLOSE\n");
+	  Running = false;
         }break;
 
         case WM_ACTIVATEAPP:
@@ -34,10 +40,26 @@ MainWindowCallback(HWND Window,
 	case WM_PAINT:
 	{
 	  PAINTSTRUCT Paint;
-	  HDC_DeviceContext = BeginPaint(Window, &Paint);
-	  int x = 
+	  HDC DeviceContext = BeginPaint(Window, &Paint);
+	  
+	  int X = Paint.rcPaint.left;
+	  int Y = Paint.rcPaint.top;
+	  int Width = Paint.rcPaint.right - Paint.rcPaint.left;
+	  int Height = Paint.rcPaint.bottom - Paint.rcPaint.top;
+	  static DWORD Operation = WHITENESS;
 
-	}
+	  PatBlt(DeviceContext, X, Y, Width, Height, Operation);
+	  if (Operation == WHITENESS)
+	    {
+	      Operation = BLACKNESS;
+	    }
+	  else
+	    {
+	      Operation = WHITENESS;
+	    }
+
+	  EndPaint(Window, &Paint);
+	}break;
 	
 
         default:
@@ -82,20 +104,21 @@ int CALLBACK WinMain(
                                       0);
       if(Window)
        {
-	   for(;;)
-	     {
-	       MSG Message;
-	       BOOL MessageResult = GetMessage(&Message, 0, 0, 0);
-	       if(MessageResult > 0)
-		 {
-		   TranslateMessage(&Message);
-		   DispatchMessageA(&Message);
-		 }
-	       else
-		 {
-		   break;
-		 }
-	     }
+	 Running = true;
+         while(Running)
+	 {
+	   MSG Message;
+	   BOOL MessageResult = GetMessage(&Message, 0, 0, 0);
+	   if(MessageResult > 0)
+	   {
+	       TranslateMessage(&Message);
+	       DispatchMessageA(&Message);
+	   }
+	   else
+	   {
+	     break;
+	   }
+	 }
        }
     }
     else
