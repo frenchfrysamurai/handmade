@@ -6,6 +6,39 @@
 
 global_variable bool Running;
 
+internal void
+Win32ResizeDIBSection(int Width, int Height)
+{
+      HBITMAP CreateDIBSection(
+	  [in]  HDC              hdc,
+	  [in]  const BITMAPINFO *pbmi,
+	  [in]  UINT             usage,
+	  [out] VOID             **ppvBits,
+	  [in]  HANDLE           hSection,
+	  [in]  DWORD            offset
+	);
+}
+
+internal void
+Wind32UpdateWindow(HDC DeviceContext, int X, int Y, int Width, int Height)
+{
+      int StretchDIBits(
+	  [in] HDC              hdc,
+	  [in] int              xDest,
+	  [in] int              yDest,
+	  [in] int              DestWidth,
+	  [in] int              DestHeight,
+	  [in] int              xSrc,
+	  [in] int              ySrc,
+	  [in] int              SrcWidth,
+	  [in] int              SrcHeight,
+	  [in] const VOID       *lpBits,
+	  [in] const BITMAPINFO *lpbmi,
+	  [in] UINT             iUsage,
+	  [in] DWORD            rop
+	);
+}
+
 LRESULT CALLBACK
 MainWindowCallback(HWND Window,
                    UINT Message,
@@ -18,7 +51,12 @@ MainWindowCallback(HWND Window,
     {
         case WM_SIZE:
         {
-            OutputDebugStringA("WM_SIZE\n");
+	  RECT ClientRect(Window, &ClientRect);
+	  GetClientRect(Window, &ClientRect);
+	  int Width = ClientRect.right -ClientRect.left;
+	  int Height = ClientRect.bottom - ClientRect.top;
+	  ResizeDIBSection(Width, Height);
+	  OutputDebugStringA("WM_SIZE\N");
         } break;
 
         case WM_DESTROY:
@@ -41,23 +79,11 @@ MainWindowCallback(HWND Window,
 	{
 	  PAINTSTRUCT Paint;
 	  HDC DeviceContext = BeginPaint(Window, &Paint);
-	  
 	  int X = Paint.rcPaint.left;
 	  int Y = Paint.rcPaint.top;
 	  int Width = Paint.rcPaint.right - Paint.rcPaint.left;
 	  int Height = Paint.rcPaint.bottom - Paint.rcPaint.top;
-	  static DWORD Operation = WHITENESS;
-
-	  PatBlt(DeviceContext, X, Y, Width, Height, Operation);
-	  if (Operation == WHITENESS)
-	    {
-	      Operation = BLACKNESS;
-	    }
-	  else
-	    {
-	      Operation = WHITENESS;
-	    }
-
+	  Win32UpdateWindow(Window, X, Y, Width, Height);
 	  EndPaint(Window, &Paint);
 	}break;
 	
@@ -79,7 +105,6 @@ int CALLBACK WinMain(
     LPSTR CommandLine, 
     int Cmdshow)
 {
-// Stopped at 35:20, Day 2
     WNDCLASS WindowClass = {};
 
     WindowClass.style = CS_OWNDC|CS_HREDRAW|CS_VREDRAW;
